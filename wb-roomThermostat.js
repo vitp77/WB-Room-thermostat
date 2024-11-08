@@ -118,6 +118,7 @@ defineVirtualDevice('roomThermostat', {
 
 var draftRoomTemperature = dev[controlTermometr];
 var roomTemperatureStack = [draftRoomTemperature];
+dev['roomThermostat/log9'] = '(0)';
 
 // Событие изменения температуры датчика, возникает сильно саще чем производится расчет
 // Примитивный фильтр используется для избежания скачков значений
@@ -165,7 +166,7 @@ function setHeatingSetpoint() {
   // Если котел греет ворду в бойлере - ничего не делть
   if(dev[controlBoilerStatus] == 4) {return}
 
-  if(Math.abs(roomTemperature - roomTemperatureSetpoint) >= gisterezis / 4) {
+  if(Math.abs(roomTemperature - roomTemperatureSetpoint) >= gisterezis / 2 - 0.1) {
 
     if(heatingSetpoint == maxHeatingSetpoint && roomTemperature <= roomTemperatureSetpoint + gisterezis / 2){
       // Если уставка отопления равна максимумум, значит прогревается с низких значений
@@ -221,7 +222,7 @@ function setHeatingSetpoint() {
   // Обновление истории изменения установок
   var logMessage = 'rT = {}; rTsp = {}; hTsp = {}'.format(roomTemperature.toFixed(1), roomTemperatureSetpoint, heatingSetpoint);
   var countsLogMessage = parseInt(dev['roomThermostat/log9'].slice(-2, -1));
-  if(dev['roomThermostat/log9'].slice(0, 31) != logMessage || countsLogMessage > 9) {
+  if(dev['roomThermostat/log9'].slice(0, 31) != logMessage || countsLogMessage == 9) {
     countsLogMessage = 0;
     for(index = 0; index < 9; index++){
       var cellTitle = getDevice('roomThermostat').getControl('log{}'.format(index + 1)).getTitle();
